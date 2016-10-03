@@ -2,10 +2,6 @@ library(shiny)
 
 shinyServer(function(input, output, session) {
 
-  # For testing purposes
-  # input = list()
-  # input$datafile$datapath = "testdata/case_all_rx.csv"
-    
   computation = reactive({
     
     # Do not proceed if no data file uploaded
