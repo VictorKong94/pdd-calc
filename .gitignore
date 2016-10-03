@@ -2,6 +2,12 @@
 .Rhistory
 .Rapp.history
 
+# Preferences
+*.DS_Store
+
+# Test Data files
+testdata/*
+
 # Session Data files
 .RData
 
