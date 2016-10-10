@@ -1,6 +1,6 @@
 library(shiny)
 
-shinyServer(function(input, output, session) {
+function(input, output, session) {
 
   computation = reactive({
     
@@ -126,4 +126,4 @@ shinyServer(function(input, output, session) {
     content = function(con) write.csv(computation()$data, con)
   )
   
-})
+}
