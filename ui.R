@@ -1,7 +1,7 @@
 library(shiny)
 library(shinythemes)
 
-shinyUI(fluidPage(
+fluidPage(
   theme = shinytheme("cerulean"),
   titlePanel("PDD Calculations"),
   sidebarLayout(
@@ -28,4 +28,4 @@ shinyUI(fluidPage(
       )
     )
   )
-))
+)
