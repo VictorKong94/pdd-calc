@@ -96,9 +96,10 @@ function(input, output, session) {
     finalDrug = sapply(1:nrow(gennm), function(x) gennm[x, visits[x] - 1])
     
     # Save processed data to csv file
-    data = cbind(id, PDD, PDDfactor, visits, RxChange, RxIncrease, RxDecrease,
-                 totalChange, ratioIncreaseChange, drugs, mainDrug, initialDrug,
-                 finalDrug)
+    data = matrix(c(unlist(id), PDD, PDDfactor, visits, RxChange, RxIncrease,
+                    RxDecrease, totalChange, ratioIncreaseChange, drugs,
+                    mainDrug, initialDrug, finalDrug),
+                  ncol = length(id_cols) + 18)
     colnames(data) = c(colnames(id), "PDD/DDD", "PDD/DDD Factor",
                        "Number of Visits", "PDD/DDD Changes",
                        "PDD/DDD Increases", "PDD/DDD Decreases",
@@ -120,7 +121,7 @@ function(input, output, session) {
   outputOptions(output, "fileUploaded", suspendWhenHidden = F)
   
   output$table = renderTable({
-    rbind(head(computation()$data), "⋮")
+    rbind(head(computation()$data, 20), "⋮")
   })
   
   output$downloadData = downloadHandler(
