@@ -14,9 +14,11 @@ function(input, output, session) {
     infile = input$datafile$datapath
     rawData = read.csv(infile)
     rawData[is.na(rawData)] = 0
+    id_cols = grep("id", colnames(rawData))
     
     # Extract only columns with necessary data
-    id = rawData[, grep("id", colnames(rawData))]
+    id = matrix(rawData[, id_cols], ncol = length(id_cols))
+    colnames(id) = colnames(rawData)[id_cols]
     days = rawData[, setdiff(grep("days", colnames(rawData)),
                              grep("tot", colnames(rawData)))]
     gennm = rawData[, grep("gennm", colnames(rawData))]
@@ -100,7 +102,7 @@ function(input, output, session) {
     colnames(data) = c(colnames(id), "PDD/DDD", "PDD/DDD Factor",
                        "Number of Visits", "PDD/DDD Changes",
                        "PDD/DDD Increases", "PDD/DDD Decreases",
-                       "Total PDD/DDD Change", "Increase/Change Ratio",
+                       "Total PDD/DDD Changes", "Increase/Change Ratio",
                        "Atorva", "Fluva", "Lova", "Pitava", "Prava", "Rosuva",
                        "Simva", "Primary Drug", "Initial Drug", "Final Drug")
     filename = strsplit(input$datafile$name, "\\.")[[1]]
