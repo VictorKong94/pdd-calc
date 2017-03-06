@@ -1,8 +1,11 @@
 library(shiny)
 
+options(shiny.maxRequestSize = 30 * 1024 ^ 2,
+        stringsAsFactors = F)
+
 function(input, output, session) {
 
-  computation = reactive({
+  rawData = reactive({
     
     # Do not proceed if no data file uploaded
     if (is.null(input$datafile)) {
@@ -10,15 +13,29 @@ function(input, output, session) {
     }
     
     # Import prescription data from .csv file
-    options(stringsAsFactors = F)
     infile = input$datafile$datapath
     rawData = read.csv(infile)
     rawData[is.na(rawData)] = 0
-    id_cols = grep("id", colnames(rawData))
+    return(rawData)
+    
+  })
+  
+  observe({
+    
+    # Update select input for selection of ID column
+    updateSelectInput(session,
+                      inputId = "IDcolumn",
+                      choices = colnames(rawData()))
+    
+  })
+  
+  computation = reactive ({
+    
+    # Read in data with user specifications
+    rawData = rawData()
+    IDcolumn = rawData[, input$IDcolumn]
     
     # Extract only columns with necessary data
-    id = matrix(rawData[, id_cols], ncol = length(id_cols))
-    colnames(id) = colnames(rawData)[id_cols]
     days = rawData[, setdiff(grep("days", colnames(rawData)),
                              grep("tot", colnames(rawData)))]
     gennm = rawData[, grep("gennm", colnames(rawData))]
@@ -96,11 +113,10 @@ function(input, output, session) {
     finalDrug = sapply(1:nrow(gennm), function(x) gennm[x, visits[x] - 1])
     
     # Save processed data to csv file
-    data = matrix(c(unlist(id), PDD, PDDfactor, visits, RxChange, RxIncrease,
-                    RxDecrease, totalChange, ratioIncreaseChange, drugs,
-                    mainDrug, initialDrug, finalDrug),
-                  ncol = length(id_cols) + 18)
-    colnames(data) = c(colnames(id), "PDD/DDD", "PDD/DDD Factor",
+    data = cbind(IDcolumn, PDD, PDDfactor, visits, RxChange, RxIncrease,
+                 RxDecrease, totalChange, ratioIncreaseChange, drugs,
+                 mainDrug, initialDrug, finalDrug)
+    colnames(data) = c(input$IDcolumn, "PDD/DDD", "PDD/DDD Factor",
                        "Number of Visits", "PDD/DDD Changes",
                        "PDD/DDD Increases", "PDD/DDD Decreases",
                        "Total PDD/DDD Changes", "Increase/Change Ratio",

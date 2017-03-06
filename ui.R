@@ -15,6 +15,11 @@ fluidPage(
       conditionalPanel(
         condition = "output.fileUploaded",
         
+        # Select -> Select ID Column
+        selectInput(inputId = "IDcolumn",
+                    label = "Select ID Column",
+                    choices = NULL),
+        
         # Download Button -> Download Processed Data
         downloadButton(outputId = "downloadData",
                        label = "Download")
