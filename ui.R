@@ -3,6 +3,9 @@ library(shinythemes)
 
 fluidPage(
   theme = shinytheme("cerulean"),
+  tags$head(
+    tags$link(rel = "stylesheet", type = "text/css", href = "stylesheet.css")
+  ),
   titlePanel("PDD Calculations"),
   sidebarLayout(
     sidebarPanel(
@@ -15,6 +18,12 @@ fluidPage(
       conditionalPanel(
         condition = "output.fileUploaded",
         
+        # Print -> Please Wait For Large Files
+        tags$div(
+          HTML("Please Wait For Large Files</br></br>"),
+          class = "center-text"
+        ),
+        
         # Select -> Select ID Column
         selectInput(inputId = "IDcolumn",
                     label = "Select ID Column",
@@ -22,7 +31,8 @@ fluidPage(
         
         # Download Button -> Download Processed Data
         downloadButton(outputId = "downloadData",
-                       label = "Download")
+                       label = "Download Processed Data",
+                       class = "dl-button")
       )
       
     ),
