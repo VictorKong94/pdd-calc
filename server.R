@@ -77,6 +77,7 @@ function(input, output, session) {
                     breaks = c(0, .25, .5, .75, 1, 1.25, 1.5, 1.75,
                                2, 2.5, 3, 3.5, 4, 5, 6, Inf),
                     right = F)
+    PDDfactor = as.character(PDDfactor)
     
     # Compute frequencies of visits to pharmacist (units: number of times)
     visits = apply(days != 0, 1, sum)
