@@ -79,28 +79,19 @@ function(input, output, session) {
                     right = F)
     PDDfactor = as.character(PDDfactor)
     
-    # Initial and final PDD/DDD ratios
-    PDD_initial = dailyRx[, 1]
-    PDD_final = apply(dailyRx, 1, function(x) rev(x[x != 0])[1])[1:6]
-    overall_increase = PDD_final > PDD_initial
-    overall_decrease = PDD_final < PDD_initial
-    
     # Compute frequencies of visits to pharmacist (units: number of times)
     visits = apply(days != 0, 1, sum)
     
     # Compute changes in prescription over time
     deltaRx = dailyRx[, -1] - dailyRx[, -ncol(dailyRx)]
-    for (i in 1:nrow(deltaRx)) {
-      deltaRx[i, visits[i]] = 0
-    }
+    for (i in 1:nrow(deltaRx)) deltaRx[i, visits[i]] = 0
     deltaRx = deltaRx[, -ncol(dailyRx)]
     
     # Compute frequencies of prescription changes (units: number of times)
     RxChange = apply(deltaRx, 1, function(x) sum(x != 0))
     RxIncrease = apply(deltaRx, 1, function(x) sum(x > 0))
     RxDecrease = apply(deltaRx, 1, function(x) sum(x < 0))
-    totalChange = sapply(1:nrow(dailyRx), function(x)
-      dailyRx[x, visits[x]]) - dailyRx[, 1]
+    deltaPDD = apply(deltaRx, 1, sum)
     RxChangeDenominator = RxChange
     RxChangeDenominator[RxChangeDenominator == 0] = 1
     ratioIncreaseChange = RxIncrease / RxChangeDenominator
@@ -120,16 +111,14 @@ function(input, output, session) {
     finalDrug = sapply(1:nrow(gennm), function(x) gennm[x, visits[x] - 1])
     
     # Save processed data to csv file
-    data = cbind(PDD, PDDfactor, visits, RxChange, RxIncrease,
-                 RxDecrease, totalChange, overall_increase, overall_decrease,
-                 drugs, mainDrug, initialDrug, finalDrug)
+    data = cbind(PDD, PDDfactor, visits, RxChange, RxIncrease, RxDecrease,
+                 deltaPDD, drugs, mainDrug, initialDrug,
+                 finalDrug)
     colnames(data) = c("PDD/DDD", "PDD/DDD Factor", "Number of Visits",
                        "PDD/DDD Changes", "PDD/DDD Increases",
-                       "PDD/DDD Decreases", "Total PDD/DDD Changes",
-                       "Overall Increase in PDD/DDD",
-                       "Overall Decrease in PDD/DDD", "Atorva", "Fluva", "Lova",
-                       "Pitava", "Prava", "Rosuva", "Simva", "Primary Drug",
-                       "Initial Drug", "Final Drug")
+                       "PDD/DDD Decreases", "Overall Change in PDD/DDD",
+                       "Atorva", "Fluva", "Lova", "Pitava", "Prava", "Rosuva",
+                       "Simva", "Primary Drug", "Initial Drug", "Final Drug")
     rownames(data) = IDcolumn
     filename = strsplit(input$datafile$name, "\\.")[[1]]
     filename = paste0(filename[1], " (Processed).", filename[2])
