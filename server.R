@@ -14,7 +14,7 @@ function(input, output, session) {
     
     # Import prescription data from .csv file
     infile = input$datafile$datapath
-    rawData = read.csv(infile)
+    rawData = read.csv(infile, na.strings = c("", NA))
     rawData[is.na(rawData)] = 0
     return(rawData)
     
@@ -79,6 +79,12 @@ function(input, output, session) {
                     right = F)
     PDDfactor = as.character(PDDfactor)
     
+    # Initial and final PDD/DDD ratios
+    PDD_initial = dailyRx[, 1]
+    PDD_final = apply(dailyRx, 1, function(x) rev(x[x != 0])[1])[1:6]
+    overall_increase = PDD_final > PDD_initial
+    overall_decrease = PDD_final < PDD_initial
+    
     # Compute frequencies of visits to pharmacist (units: number of times)
     visits = apply(days != 0, 1, sum)
     
@@ -115,12 +121,13 @@ function(input, output, session) {
     
     # Save processed data to csv file
     data = cbind(PDD, PDDfactor, visits, RxChange, RxIncrease,
-                 RxDecrease, totalChange, ratioIncreaseChange, drugs,
-                 mainDrug, initialDrug, finalDrug)
+                 RxDecrease, totalChange, overall_increase, overall_decrease,
+                 drugs, mainDrug, initialDrug, finalDrug)
     colnames(data) = c("PDD/DDD", "PDD/DDD Factor", "Number of Visits",
                        "PDD/DDD Changes", "PDD/DDD Increases",
                        "PDD/DDD Decreases", "Total PDD/DDD Changes",
-                       "Increase/Change Ratio", "Atorva", "Fluva", "Lova",
+                       "Overall Increase in PDD/DDD",
+                       "Overall Decrease in PDD/DDD", "Atorva", "Fluva", "Lova",
                        "Pitava", "Prava", "Rosuva", "Simva", "Primary Drug",
                        "Initial Drug", "Final Drug")
     rownames(data) = IDcolumn
